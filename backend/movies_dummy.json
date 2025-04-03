@@ -1,0 +1,18 @@
+[
+    {
+      "title": "Inception",
+      "overview": "A skilled thief who steals secrets through dream-sharing technology.",
+      "img": "/images/inception.jpeg"
+    },
+    {
+      "title": "La La Land",
+      "overview": "A jazz pianist and an aspiring actress fall in love in Los Angeles.",
+      "img": "/images/la_la_land.jpeg"
+    },
+    {
+      "title": "Parasite",
+      "overview": "A poor family schemes to infiltrate a wealthy household.",
+      "img": "/images/parasite.jpeg"
+    }
+  ]
+  
