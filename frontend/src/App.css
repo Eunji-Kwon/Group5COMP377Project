@@ -36,3 +36,28 @@
     transform: rotate(360deg);
   }
 }
+
+
+body, .app-dark {
+  background-color: #121212;
+  font-family: 'Roboto', sans-serif;
+}
+
+.movie-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  border-radius: 10px;
+}
+.movie-card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+}
+
+.card-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.card-text {
+  font-size: 0.85rem;
+}

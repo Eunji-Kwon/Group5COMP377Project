@@ -1,7 +1,7 @@
-// MovieSentimentApp.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+import { Link } from 'react-router-dom';
 
 export default function MovieSentimentApp() {
   const [movieList, setMovieList] = useState([]);
@@ -10,26 +10,29 @@ export default function MovieSentimentApp() {
   const [sentiment, setSentiment] = useState(null);
   const [message, setMessage] = useState('');
   const [postedReviews, setPostedReviews] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     axios.get("http://localhost:5000/movies")
-      .then(res => {
-        setMovieList(res.data);
-      })
+      .then(res => setMovieList(res.data))
       .catch(err => {
         console.error("Failed to fetch movies", err);
         setMessage("Could not load movie list.");
+      });
+
+    axios.get("http://localhost:5000/reviews")
+      .then(res => setPostedReviews(res.data))
+      .catch(err => {
+        console.error("Failed to load reviews", err);
       });
   }, []);
 
   const handlePredict = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/predict", {
-        review: review
-      });
+      const res = await axios.post("http://localhost:5000/predict", { review });
       setSentiment(res.data.result);
-    } catch (error) {
-      console.error("❌ Prediction failed", error);
+    } catch (err) {
+      console.error("Prediction failed", err);
       setMessage("Prediction failed.");
     }
   };
@@ -40,20 +43,12 @@ export default function MovieSentimentApp() {
       return;
     }
 
+    const newReview = { movie: selectedMovie, review, sentiment };
+
     try {
-      await axios.post("http://localhost:5000/submit_review", {
-        movie: selectedMovie,
-        review: review,
-        sentiment: sentiment
-      });
-
-      setPostedReviews([...postedReviews, {
-        movie: selectedMovie,
-        review,
-        sentiment
-      }]);
-
-      setMessage("Review posted successfully!");
+      await axios.post("http://localhost:5000/submit_review", newReview);
+      setPostedReviews([...postedReviews, newReview]);
+      setMessage("✅ Review posted successfully!");
       setReview('');
       setSentiment(null);
     } catch (err) {
@@ -64,85 +59,114 @@ export default function MovieSentimentApp() {
 
   const getReviewStats = (title) => {
     const filtered = postedReviews.filter(r => r.movie.title === title);
-    const total = filtered.length;
-    const positive = filtered.filter(r => r.sentiment === "positive").length;
-    const negative = filtered.filter(r => r.sentiment === "negative").length;
-    return { total, positive, negative };
+    return {
+      total: filtered.length,
+      positive: filtered.filter(r => r.sentiment === "Positive").length,
+      negative: filtered.filter(r => r.sentiment === "Negative").length
+    };
   };
 
-  return (
-    <div className="container mt-4">
-      <h2 className="text-center mb-4">🎬 Movie Review Sentiment App</h2>
+  const filteredMovies = movieList.filter(movie =>
+    movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-      <div className="row">
-        {movieList.map((movie, idx) => {
-          const stats = getReviewStats(movie.title);
-          return (
-            <div className="col-md-3 col-sm-6 mb-4" key={idx}>
-              <div className="card h-100" style={{ maxWidth: "250px", margin: "auto" }}>
-                <img
-                  src={movie.img}
-                  className="card-img-top"
-                  alt={movie.title}
-                  style={{ height: "220px", objectFit: "cover" }}
-                />
-                <div className="card-body">
-                  <h5 className="card-title">{movie.title}</h5>
-                  <p className="card-text" style={{ fontSize: "0.9rem" }}>{movie.overview}</p>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    onClick={() => {
-                      setSelectedMovie(movie);
-                      setReview('');
-                      setSentiment(null);
-                      setMessage('');
-                    }}
-                  >
-                    Write Review
-                  </button>
-                  <div className="mt-3">
-                    <strong style={{ color: 'black' }}>Total: {stats.total}</strong><br />
-                    <span style={{ color: 'green' }}>Positive: {stats.positive}</span><br />
-                    <span style={{ color: 'red' }}>Negative: {stats.negative}</span>
+  return (
+    <div className="app-dark text-white min-vh-100">
+      <div className="container py-4">
+        <nav className="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <Link to="/" className="btn btn-outline-light me-2">Home</Link>
+            <Link to="/reviews" className="btn btn-outline-light">View All Reviews</Link>
+          </div>
+          <div className="d-flex align-items-center gap-2 w-50">
+            <span className="text-secondary">🔍</span>
+            <input
+              type="text"
+              className="form-control bg-dark text-white border-secondary"
+              placeholder="Search movies..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </nav>
+
+        <h2 className="text-center mb-5">🎬 Movie Review Sentiment App</h2>
+
+        <div className="row g-4">
+          {filteredMovies.map((movie, idx) => {
+            const stats = getReviewStats(movie.title);
+            return (
+              <div className="col-md-3 col-sm-6" key={idx}>
+                <div
+                  className="card movie-card text-white bg-dark border-secondary h-100"
+                  onClick={() => {
+                    setSelectedMovie(movie);
+                    setReview('');
+                    setSentiment(null);
+                    setMessage('');
+                  }}
+                >
+                  <img
+                    src={movie.img}
+                    className="card-img-top"
+                    alt={movie.title}
+                    style={{ height: "270px", objectFit: "cover" }}
+                  />
+                  <div className="card-body">
+                    <h5 className="card-title">{movie.title}</h5>
+                    <p className="card-text">{movie.overview}</p>
+                    <p className="text-info small fst-italic mt-2">Click card to write a review</p>
+                    <div className="text-muted small mt-2">
+                      Total: {stats.total}<br />
+                      <span className="text-success">Positive: {stats.positive}</span><br />
+                      <span className="text-danger">Negative: {stats.negative}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {selectedMovie && (
-        <div className="card p-4 mt-4">
-          <h4>Review for: {selectedMovie.title}</h4>
-          <textarea
-            className="form-control mb-3"
-            rows="4"
-            placeholder="Write your review here..."
-            value={review}
-            onChange={(e) => setReview(e.target.value)}
-          />
-          <div className="d-flex gap-2">
-            <button className="btn btn-info" onClick={handlePredict}>
-              Predict Sentiment
-            </button>
-            <button className="btn btn-success" onClick={handlePost}>
-              Post Review
-            </button>
-          </div>
-
-          {sentiment && (
-            <div className="alert alert-info mt-3">
-              <strong>Predicted Sentiment:</strong> {sentiment}
-            </div>
-          )}
-          {message && (
-            <div className="alert alert-secondary mt-2">
-              {message}
-            </div>
-          )}
+            );
+          })}
         </div>
-      )}
+
+        {selectedMovie && (
+          <div className="card bg-secondary text-white mt-5 p-4 position-relative">
+            {/* X button to close */}
+            <button
+              className="btn-close position-absolute top-0 end-0 m-3"
+              onClick={() => {
+                setSelectedMovie(null);
+                setReview('');
+                setSentiment(null);
+                setMessage('');
+              }}
+              aria-label="Close"
+            ></button>
+
+            <h4 className="mb-3">Review for: {selectedMovie.title}</h4>
+            <textarea
+              className="form-control mb-3 bg-dark text-white border-light"
+              rows="4"
+              placeholder="Write your review here..."
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+            />
+            <div className="d-flex gap-2">
+              <button className="btn btn-info" onClick={handlePredict}>Predict Sentiment</button>
+              <button className="btn btn-success" onClick={handlePost}>Post Review</button>
+            </div>
+
+            {sentiment && (
+              <div className="alert alert-dark mt-3">
+                <strong>Predicted Sentiment:</strong> {sentiment}
+              </div>
+            )}
+            {message && (
+              <div className="alert alert-secondary mt-2">{message}</div>
+            )}
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }

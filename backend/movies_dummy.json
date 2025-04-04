@@ -13,6 +13,31 @@
       "title": "Parasite",
       "overview": "A poor family schemes to infiltrate a wealthy household.",
       "img": "/images/parasite.jpeg"
+    },
+    {
+      "title": "Interstellar",
+      "overview": "A team of explorers travel through a wormhole in space.",
+      "img": "/images/interestellar.jpg"
+    },
+    {
+      "title": "The Dark Knight",
+      "overview": "Batman faces off against the Joker in Gotham City.",
+      "img": "/images/thedarkknight.jpg"
+    },
+    {
+      "title": "Coco",
+      "overview": "A boy travels to the Land of the Dead to learn about his family’s past.",
+      "img": "/images/coco.jpg"
+    },
+    {
+      "title": "The Matrix",
+      "overview": "A hacker discovers the reality he knows is a simulation.",
+      "img": "/images/thematrix.jpg"
+    },
+    {
+      "title": "Soul",
+      "overview": "A jazz musician's soul gets separated from his body.",
+      "img": "/images/soul.jpg"
     }
   ]
   
