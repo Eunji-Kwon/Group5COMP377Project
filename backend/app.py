@@ -15,7 +15,7 @@ DUMMY_FILE = "movies_dummy.json"
 @app.route("/movies", methods=["GET"])
 def get_movies():
     try:
-        with open(DUMMY_FILE, "r") as f:
+        with open(DUMMY_FILE, "r", encoding="utf-8") as f:
             return jsonify(json.load(f))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -43,7 +43,7 @@ def predict():
 
 REVIEWS_FILE = "reviews.json"
 if not os.path.exists(REVIEWS_FILE):
-    with open(REVIEWS_FILE, "w") as f:
+    with open(REVIEWS_FILE, "w", encoding="utf-8") as f:
         json.dump([], f)
 
 @app.route("/submit_review", methods=["POST"])
@@ -55,12 +55,12 @@ def submit_review():
 
         data["timestamp"] = datetime.now().isoformat()
 
-        with open(REVIEWS_FILE, "r") as f:
+        with open(REVIEWS_FILE, "r", encoding="utf-8") as f:
             reviews = json.load(f)
 
         reviews.append(data)
 
-        with open(REVIEWS_FILE, "w") as f:
+        with open(REVIEWS_FILE, "w", encoding="utf-8" ) as f:
             json.dump(reviews, f, indent=2)
 
         return jsonify({"message": "Review saved successfully"})
@@ -74,7 +74,7 @@ def get_reviews():
         sentiment_filter = request.args.get("sentiment")
         movie_filter = request.args.get("movie")
 
-        with open(REVIEWS_FILE, "r") as f:
+        with open(REVIEWS_FILE, "r", encoding="utf-8") as f:
             reviews = json.load(f)
 
         if sentiment_filter:
@@ -90,12 +90,12 @@ def get_reviews():
 @app.route("/reviews/<int:index>", methods=["DELETE"])
 def delete_review(index):
     try:
-        with open(REVIEWS_FILE, "r") as f:
+        with open(REVIEWS_FILE, "r", encoding="utf-8") as f:
             reviews = json.load(f)
 
         if 0 <= index < len(reviews):
             deleted = reviews.pop(index)
-            with open(REVIEWS_FILE, "w") as f:
+            with open(REVIEWS_FILE, "w", encoding="utf-8") as f:
                 json.dump(reviews, f, indent=2)
             return jsonify({"message": "Review deleted", "deleted": deleted})
         else:
@@ -111,7 +111,7 @@ def update_review(index):
         if not data.get("review"):
             return jsonify({"error": "Missing updated review text"}), 400
 
-        with open(REVIEWS_FILE, "r") as f:
+        with open(REVIEWS_FILE, "r", encoding="utf-8") as f:
             reviews = json.load(f)
 
         if 0 <= index < len(reviews):
@@ -120,7 +120,7 @@ def update_review(index):
             reviews[index]["sentiment"] = "Positive" if prediction == "positive" or prediction == 1 else "Negative"
             reviews[index]["timestamp"] = datetime.now().isoformat()
 
-            with open(REVIEWS_FILE, "w") as f:
+            with open(REVIEWS_FILE, "w", encoding="utf-8") as f:
                 json.dump(reviews, f, indent=2)
 
             return jsonify({"message": "Review updated", "updated": reviews[index]})

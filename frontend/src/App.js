@@ -21,7 +21,11 @@ export default function MovieSentimentApp() {
       });
 
     axios.get("http://localhost:5000/reviews")
-      .then(res => setPostedReviews(res.data))
+      // .then(res => setPostedReviews(res.data))
+      .then(res => {
+        const validReviews = res.data.filter(r => r.movie && r.movie.title);
+        setPostedReviews(validReviews);
+      })
       .catch(err => {
         console.error("Failed to load reviews", err);
       });
@@ -51,6 +55,7 @@ export default function MovieSentimentApp() {
       setMessage("✅ Review posted successfully!");
       setReview('');
       setSentiment(null);
+      setSelectedMovie(null);
     } catch (err) {
       console.error(err);
       setMessage("Something went wrong while posting.");
@@ -58,13 +63,14 @@ export default function MovieSentimentApp() {
   };
 
   const getReviewStats = (title) => {
-    const filtered = postedReviews.filter(r => r.movie.title === title);
+    const filtered = postedReviews.filter(r => r.movie && r.movie.title === title);
     return {
       total: filtered.length,
-      positive: filtered.filter(r => r.sentiment === "Positive").length,
-      negative: filtered.filter(r => r.sentiment === "Negative").length
+      positive: filtered.filter(r => r.movie && r.sentiment === "Positive").length,
+      negative: filtered.filter(r => r.movie && r.sentiment === "Negative").length
     };
   };
+  
 
   const filteredMovies = movieList.filter(movie =>
     movie.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -128,9 +134,60 @@ export default function MovieSentimentApp() {
           })}
         </div>
 
-        {selectedMovie && (
+        {/* Floating Review Modal */}
+{selectedMovie && (
+  <>
+  
+  <div className="modal fade show d-block" tabIndex="-1" role="dialog">
+    <div className="modal-dialog modal-dialog-centered" role="document">
+      <div className="modal-content bg-dark text-white"
+        style={{ backgroundColor: "rgba(33, 37, 41, 0.7)" }}>
+        <div className="modal-header">
+          <h5 className="modal-title">Review for: {selectedMovie.title}</h5>
+          <button
+            type="button"
+            className="btn-close btn-close-white"
+            onClick={() => {
+              setSelectedMovie(null);
+              setReview('');
+              setSentiment(null);
+              setMessage('');
+            }}
+            aria-label="Close"
+          ></button>
+        </div>
+        <div className="modal-body">
+          <textarea
+            className="form-control mb-3 bg-dark text-white border-light"
+            rows="4"
+            placeholder="Write your review here..."
+            value={review}
+            onChange={(e) => setReview(e.target.value)}
+          />
+          <div className="d-flex gap-2">
+            <button className="btn btn-info" onClick={handlePredict}>Predict Sentiment</button>
+            <button className="btn btn-success" onClick={handlePost}>Post Review</button>
+          </div>
+          {sentiment && (
+            <div className="alert alert-dark mt-3">
+              <strong>Predicted Sentiment:</strong> {sentiment}
+            </div>
+          )}
+          {message && (
+            <div className="alert alert-secondary mt-2">{message}</div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+    <div className="modal-backdrop fade show"></div>
+    </>
+)}
+
+
+        {/* {selectedMovie && (
           <div className="card bg-secondary text-white mt-5 p-4 position-relative">
-            {/* X button to close */}
+           
             <button
               className="btn-close position-absolute top-0 end-0 m-3"
               onClick={() => {
@@ -164,7 +221,7 @@ export default function MovieSentimentApp() {
               <div className="alert alert-secondary mt-2">{message}</div>
             )}
           </div>
-        )}
+        )} */}
 
       </div>
     </div>

@@ -122,15 +122,18 @@ export default function AllReviews() {
               <tbody>
                 {filtered.map((review, i) => {
                   // Get correct index from the original reviews list
+                  if (!review.movie || !review.movie.title) {
+                    return null;
+                  }
+                  
                   const originalIndex = reviews.findIndex(r =>
                     r.timestamp === review.timestamp &&
                     r.review === review.review &&
-                    r.movie.title === review.movie.title
-                  );
+                    r.movie && review.movie && r.movie.title === review.movie.title                  );
 
                   return (
                     <tr key={i}>
-                      <td>{review.movie.title}</td>
+                      <td>{review.movie?.title || "Unknown"}</td>
                       <td>
                         {editIndex === originalIndex ? (
                           <textarea
