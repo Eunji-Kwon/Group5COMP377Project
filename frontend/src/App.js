@@ -136,8 +136,7 @@ export default function MovieSentimentApp() {
 
         {/* Floating Review Modal */}
 {selectedMovie && (
-  <>
-  
+  <>  
   <div className="modal fade show d-block" tabIndex="-1" role="dialog">
     <div className="modal-dialog modal-dialog-centered" role="document">
       <div className="modal-content bg-dark text-white"
@@ -185,43 +184,6 @@ export default function MovieSentimentApp() {
 )}
 
 
-        {/* {selectedMovie && (
-          <div className="card bg-secondary text-white mt-5 p-4 position-relative">
-           
-            <button
-              className="btn-close position-absolute top-0 end-0 m-3"
-              onClick={() => {
-                setSelectedMovie(null);
-                setReview('');
-                setSentiment(null);
-                setMessage('');
-              }}
-              aria-label="Close"
-            ></button>
-
-            <h4 className="mb-3">Review for: {selectedMovie.title}</h4>
-            <textarea
-              className="form-control mb-3 bg-dark text-white border-light"
-              rows="4"
-              placeholder="Write your review here..."
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-            />
-            <div className="d-flex gap-2">
-              <button className="btn btn-info" onClick={handlePredict}>Predict Sentiment</button>
-              <button className="btn btn-success" onClick={handlePost}>Post Review</button>
-            </div>
-
-            {sentiment && (
-              <div className="alert alert-dark mt-3">
-                <strong>Predicted Sentiment:</strong> {sentiment}
-              </div>
-            )}
-            {message && (
-              <div className="alert alert-secondary mt-2">{message}</div>
-            )}
-          </div>
-        )} */}
 
       </div>
     </div>
